@@ -1,0 +1,18 @@
+#คล้ายภาษา python
+services:
+  client:
+    build:
+      # บอกตำแหน่งของฝั่ง server แลพ docker ไฟล์ข้างในนั้น
+      context: ./client
+      dockerfile: Dockerfile.client
+    ports:
+      - "5173:5173"
+    volumes:
+      - "./client:/app"
+      # เข้าถึงตัว node module ได้
+      - "/app/node_modules"
+      #postgres ทำทั้งหมดให้รู้จักกัน โดยไม่ต้องระบุหมายเลข IP
+      #username:password หลัง @ location db port:5432 หลัง / name db
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    # รอ server เสร็จก่อน
