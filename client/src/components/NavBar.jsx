@@ -3,68 +3,85 @@ import React from "react";
 const NavBar = () => {
   const menuItems = [
     { name: "Search", url: "/" },
-    { name: "Add Books", url: "/add" }
+    { name: "Add Books", url: "/add", isButton: true },
   ];
 
   return (
-    <nav className="w-full bg-white/80 backdrop-blur-md border-b border-gray-200 shadow-md rounded-b-xl px-4 py-2 sticky top-0 z-50">
+    <nav className="w-full bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 shadow-lg rounded-b-xl px-4 py-3 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
-        <div className="flex items-center gap-2">
-          <a
-            href="/"
-            className="text-2xl font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
-          >
-            Book Store
-          </a>
+        <a
+          href="/"
+          className="text-2xl font-bold text-white hover:text-gray-100 transition-colors"
+        >
+          Book Store
+        </a>
 
-          {/* Mobile dropdown */}
-          <div className="dropdown lg:hidden">
-            <label tabIndex={0} className="btn btn-ghost btn-circle">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              </svg>
-            </label>
-            <ul
-              tabIndex={0}
-              className="menu menu-compact dropdown-content mt-3 p-2 shadow bg-white rounded-box w-52"
+        {/* Mobile Menu */}
+        <div className="lg:hidden dropdown">
+          <label tabIndex={0} className="btn btn-ghost btn-circle">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-white"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              {menuItems.map((item) => (
-                <li key={item.name}>
-                  <a href={item.url} className="hover:bg-indigo-100 rounded-md">
-                    {item.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Desktop Menu */}
-        <div className="hidden lg:flex">
-          <ul className="menu menu-horizontal px-1 gap-2">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          </label>
+          <ul
+            tabIndex={0}
+            className="menu menu-compact dropdown-content mt-3 p-2 shadow-lg bg-white rounded-box w-52"
+          >
             {menuItems.map((item) => (
               <li key={item.name}>
-                <a
-                  href={item.url}
-                  className="text-gray-700 hover:text-indigo-600 transition-colors font-medium"
-                >
-                  {item.name}
-                </a>
+                {item.isButton ? (
+                  <a
+                    href={item.url}
+                    className="text-white bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 hover:from-rose-600 hover:via-amber-600 hover:to-red-700 rounded-md text-center py-2 px-4 transition-all shadow-md hover:shadow-lg"
+                  >
+                    {item.name}
+                  </a>
+                ) : (
+                  <a
+                    href={item.url}
+                    className="hover:bg-rose-100 hover:text-red-900 rounded-md transition-colors"
+                  >
+                    {item.name}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* Desktop Menu */}
+        <div className="hidden lg:flex items-center gap-4">
+          {menuItems.map((item) =>
+            item.isButton ? (
+              <a
+                key={item.name}
+                href={item.url}
+                className="text-white bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 hover:from-rose-600 hover:via-amber-600 hover:to-red-700 rounded-md py-2 px-4 font-medium shadow-md hover:shadow-lg transition-all"
+              >
+                {item.name}
+              </a>
+            ) : (
+              <a
+                key={item.name}
+                href={item.url}
+                className="text-white hover:text-gray-100 font-medium transition-colors"
+              >
+                {item.name}
+              </a>
+            )
+          )}
         </div>
       </div>
     </nav>

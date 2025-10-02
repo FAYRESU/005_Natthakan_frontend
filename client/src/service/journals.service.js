@@ -18,11 +18,11 @@ const insertJournals = async (data) => api.post(`${JOURNALS_API}`, data);
 const deleteJournals = async (id) => api.delete(`${JOURNALS_API}/${id}`);
 
 const JournalsService = {
-  getAllBooks,
-  getBooksById,
-  editBooksById,
-  insertBooks,
-  deleteBooks,
+  getAllJournals,
+ getJournalsById,
+  editJournalsById,
+  insertJournals,
+  deleteJournals,
 };
 
 export default JournalsService;

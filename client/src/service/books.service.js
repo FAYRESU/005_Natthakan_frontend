@@ -15,14 +15,14 @@ const editBooksById = async (id, data) => api.put(`${BOOKS_API}/${id}`, data);
 const insertBooks = async (data) => api.post(`${BOOKS_API}`, data);
 
 // DELETE by ID
-const deleteBooks = async (id) => api.delete(`${BOOKS_API}/${id}`);
+const deleteBook = async (id) => api.delete(`${BOOKS_API}/${id}`);
 
 const BooksService = {
   getAllBooks,
   getBooksById,
   editBooksById,
   insertBooks,
-  deleteBooks,
+  deleteBook,
 };
 
 export default BooksService;
