@@ -17,7 +17,7 @@ const insertComics = async (data) => api.post(`${COMICS_API}`, data);
 // DELETE by ID
 const deleteComics = async (id) => api.delete(`${COMICS_API}/${id}`);
 
-const BooksService = {
+const ComicsService = {
   getAllComics,
   getComicsById,
   editComicsById,
@@ -25,4 +25,4 @@ const BooksService = {
   deleteComics,
 };
 
-export default BooksService;
+export default ComicsService;

@@ -1,15 +1,17 @@
-// ComicCard.jsx
-const ComicCard = ({ comic, onDelete }) => (
-  <div className="card bg-white shadow-md rounded-lg">
-    <img src={comic.coverImage} alt={comic.title} className="h-60 w-full object-cover"/>
-    <div className="p-4">
-      <h2 className="font-bold text-lg">{comic.title}</h2>
-      <p>Series: {comic.series}</p>
-      <p>Volume: {comic.volumeNumber}</p>
-      <p>Illustrator: {comic.illustrator}</p>
-      <button className="btn btn-sm btn-error mt-2" onClick={onDelete}>Delete</button>
-    </div>
-  </div>
-);
+import ItemsCard from "./ItemsCard";
 
-export default ComicCard; 
+export function ComicCard({ comic,  onDelete }) {
+  if (!comic) return null; 
+
+  return (
+    <ItemsCard items={comic} onDelete={onDelete} type="comic"> 
+        <p><strong>ชื่อซีรีส์:</strong> {comic.series}</p>
+      <p><strong>เล่มที่:</strong> {comic.volumeNumber}</p>
+      <p><strong>ผู้วาดภาพ:</strong> {comic.illustrator}</p>
+      <p><strong>ประเภทสี:</strong> {comic.colorType}</p>
+      <p><strong>กลุ่มอายุ:</strong> {comic.targetAge}</p>
+    </ItemsCard>
+  );
+}
+
+export default ComicCard;

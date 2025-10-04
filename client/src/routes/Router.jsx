@@ -1,5 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import AddBooks from "../pages/AddBooks";
+import AddJournal from "../pages/AddJournal";
+import AddComic from "../pages/AddComic ";
 import EditItem from "../pages/EditItem";
 import Home from "../pages/Home";
 import Notallowed from "../pages/Notallowed";
@@ -10,11 +12,19 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "/add",
+    path: "/add-book",
     element: <AddBooks />,
   },
   {
-    path: "/update/:id",
+    path: "/add-journal",
+    element: <AddJournal />,
+  },
+   {
+    path: "/add-comic",
+    element: <AddComic />,
+  },
+  {
+    path: "/update/:type/:id",
     element: <EditItem />,
   },
 

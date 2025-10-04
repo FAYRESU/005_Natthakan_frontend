@@ -3,7 +3,9 @@ import React from "react";
 const NavBar = () => {
   const menuItems = [
     { name: "Search", url: "/" },
-    { name: "Add Books", url: "/add", isButton: true },
+    { name: "Add Book", url: "/add-book", isButton: true },
+    { name: "Add Journal", url: "/add-journal", isButton: true },
+    { name: "Add Comic", url: "/add-comic", isButton: true },
   ];
 
   return (

@@ -1,221 +1,203 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import Swal from "sweetalert2";
-import BooksService from "../service/books.service";
+import ComicsService from "../service/comics.service";
 
-const EditBook = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [book, setBook] = useState({
+const AddComic = () => {
+  const [comic, setComic] = useState({
     title: "",
     author: "",
     category: "",
     publishYear: "",
-    isbn: "",
-    publisher: "",
-    edition: "",
-    pageCount: "",
-    language: "",
-    genre: "",
+    series: "",
+    volumeNumber: "",
+    illustrator: "",
+    colorType: "",
+    targetAge: "",
     description: "",
     coverImage: "",
     location: "",
   });
 
-  const [loading, setLoading] = useState(true);
-
-  // Fetch data by id
-  useEffect(() => {
-    const fetchBook = async () => {
-      try {
-        const res = await BooksService.getBooksById(id);
-        setBook({
-          title: res.data.title || "",
-          author: res.data.author || "",
-          category: res.data.category || "",
-          publishYear: res.data.publishYear || "",
-          isbn: res.data.isbn || "",
-          publisher: res.data.publisher || "",
-          edition: res.data.edition || "",
-          pageCount: res.data.pageCount || "",
-          language: res.data.language || "",
-          genre: res.data.genre || "",
-          description: res.data.description || "",
-          coverImage: res.data.coverImage || "",
-          location: res.data.location || "",
-        });
-        setLoading(false);
-      } catch (err) {
-        Swal.fire("Error", err.message, "error");
-      }
-    };
-    fetchBook();
-  }, [id]);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setBook({ ...book, [name]: value });
+    setComic({ ...comic, [name]: value });
   };
 
   const resetForm = () => {
-    // ไม่ reset เป็นค่าว่าง แต่ reset เป็นค่าเดิมจาก backend
-    setBook({ ...book });
+    setComic({
+      title: "",
+      author: "",
+      category: "",
+      publishYear: "",
+      series: "",
+      volumeNumber: "",
+      illustrator: "",
+      colorType: "",
+      targetAge: "",
+      description: "",
+      coverImage: "",
+      location: "",
+    });
   };
 
   const handleSubmit = async () => {
     try {
-      const res = await BooksService.editBooksById(id, book);
-      if (res.status === 200) {
+      const res = await ComicsService.insertComics(comic);
+      if (res.status === 201) {
         Swal.fire({
-          title: "อัปเดตสำเร็จ",
-          text: "Book updated successfully!",
+          title: "เพิ่มการ์ตูนเรียบร้อย",
+          text: "Comic added successfully!",
           icon: "success",
         }).then(() => {
+          resetForm();
           navigate("/");
         });
       }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
+    } catch (error) {
+      Swal.fire({
+        title: "ผิดพลาด",
+        text: error.message,
+        icon: "error",
+      });
     }
   };
-
-  if (loading) return <p className="text-center py-12">Loading...</p>;
 
   return (
     <div className="flex justify-center py-12 bg-amber-50">
       <div className="card w-full max-w-3xl shadow-xl border border-amber-300 rounded-2xl bg-amber-50">
         <div className="card-body p-8">
           <h1 className="text-4xl font-bold text-center mb-8 text-amber-800">
-            แก้ไขหนังสือ
+            เพิ่มการ์ตูนใหม่
           </h1>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Title */}
             <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ชื่อหนังสือ</span>
+              <span className="label-text font-semibold text-amber-900">ชื่อเรื่อง</span>
               <input
                 type="text"
                 name="title"
-                value={book.title}
+                value={comic.title}
                 onChange={handleChange}
-                placeholder="ระบุชื่อหนังสือ"
+                placeholder="ระบุชื่อเรื่อง"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Author */}
             <label className="form-control w-full">
               <span className="label-text font-semibold text-amber-900">ผู้แต่ง</span>
               <input
                 type="text"
                 name="author"
-                value={book.author}
+                value={comic.author}
                 onChange={handleChange}
-                placeholder="ระบุชื่อผู้แต่ง"
+                placeholder="ระบุผู้แต่ง"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Category */}
             <label className="form-control w-full">
               <span className="label-text font-semibold text-amber-900">หมวดหมู่</span>
               <input
                 type="text"
                 name="category"
-                value={book.category}
+                value={comic.category}
                 onChange={handleChange}
-                placeholder="นิยาย, วิชาการ, การ์ตูน"
+                placeholder="Action, Fantasy, Comedy"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Publish Year */}
             <label className="form-control w-full">
               <span className="label-text font-semibold text-amber-900">ปีที่พิมพ์</span>
               <input
                 type="number"
                 name="publishYear"
-                value={book.publishYear}
+                value={comic.publishYear}
                 onChange={handleChange}
                 placeholder="ระบุปีที่พิมพ์"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Series */}
             <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ISBN</span>
+              <span className="label-text font-semibold text-amber-900">ชื่อซีรีส์</span>
               <input
                 type="text"
-                name="isbn"
-                value={book.isbn}
+                name="series"
+                value={comic.series}
                 onChange={handleChange}
-                placeholder="ระบุหมายเลข ISBN"
+                placeholder="One Piece, Naruto"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Volume Number */}
             <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">สำนักพิมพ์</span>
-              <input
-                type="text"
-                name="publisher"
-                value={book.publisher}
-                onChange={handleChange}
-                placeholder="ระบุสำนักพิมพ์"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
-              />
-            </label>
-
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ครั้งที่พิมพ์</span>
-              <input
-                type="text"
-                name="edition"
-                value={book.edition}
-                onChange={handleChange}
-                placeholder="ครั้งที่ 1, ฉบับปรับปรุง"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
-              />
-            </label>
-
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">จำนวนหน้า</span>
+              <span className="label-text font-semibold text-amber-900">เล่มที่</span>
               <input
                 type="number"
-                name="pageCount"
-                value={book.pageCount}
+                name="volumeNumber"
+                value={comic.volumeNumber}
                 onChange={handleChange}
-                placeholder="จำนวนหน้า"
+                placeholder="ระบุเล่มที่ในซีรีส์"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Illustrator */}
             <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ภาษา</span>
+              <span className="label-text font-semibold text-amber-900">นักวาด</span>
               <input
                 type="text"
-                name="language"
-                value={book.language}
+                name="illustrator"
+                value={comic.illustrator}
                 onChange={handleChange}
-                placeholder="ไทย, อังกฤษ, จีน"
+                placeholder="ชื่อผู้วาด"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
 
+            {/* Color Type */}
             <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ประเภทหนังสือ</span>
+              <span className="label-text font-semibold text-amber-900">ประเภทสี</span>
               <input
                 type="text"
-                name="genre"
-                value={book.genre}
+                name="colorType"
+                value={comic.colorType}
                 onChange={handleChange}
-                placeholder="นิยาย, บันเทิง, วิชาการ"
+                placeholder="สีเต็ม, ขาวดำ, ผสม"
+                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
+              />
+            </label>
+
+            {/* Target Age */}
+            <label className="form-control w-full">
+              <span className="label-text font-semibold text-amber-900">กลุ่มอายุ</span>
+              <input
+                type="text"
+                name="targetAge"
+                value={comic.targetAge}
+                onChange={handleChange}
+                placeholder="เด็ก, วัยรุ่น, ผู้ใหญ่"
                 className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
             </label>
           </div>
 
+          {/* Description */}
           <label className="form-control w-full mt-6">
             <span className="label-text font-semibold text-amber-900">คำอธิบาย</span>
             <textarea
               name="description"
-              value={book.description}
+              value={comic.description}
               onChange={handleChange}
               placeholder="เขียนคำอธิบายสั้น ๆ"
               className="textarea textarea-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
@@ -223,44 +205,47 @@ const EditBook = () => {
             />
           </label>
 
+          {/* Cover Image */}
           <label className="form-control w-full mt-4">
             <span className="label-text font-semibold text-amber-900">รูปปก (URL)</span>
             <input
               type="text"
               name="coverImage"
-              value={book.coverImage}
+              value={comic.coverImage}
               onChange={handleChange}
               placeholder="วาง URL รูปปก"
               className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
             />
           </label>
 
+          {/* Location */}
           <label className="form-control w-full mt-4">
             <span className="label-text font-semibold text-amber-900">ตำแหน่งเก็บ</span>
             <input
               type="text"
               name="location"
-              value={book.location}
+              value={comic.location}
               onChange={handleChange}
-              placeholder="A2, ห้องสมุด 1"
+              placeholder="Shelf B1, Library Room 2"
               className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
             />
           </label>
 
+          {/* Buttons */}
           <div className="flex justify-end gap-4 mt-8">
             <button
               type="button"
               className="btn btn-amber btn-outline hover:bg-amber-100 transition"
-              onClick={() => navigate("/")}
+              onClick={resetForm}
             >
-              ยกเลิก
+              Reset
             </button>
             <button
               type="button"
               className="btn text-white bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
               onClick={handleSubmit}
             >
-              บันทึก
+              Submit
             </button>
           </div>
         </div>
@@ -269,4 +254,4 @@ const EditBook = () => {
   );
 };
 
-export default EditBook;
+export default AddComic;
