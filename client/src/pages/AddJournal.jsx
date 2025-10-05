@@ -43,7 +43,7 @@ const AddJournal = () => {
     e?.preventDefault();
 
     try {
-      const newJournal = await JournalsService.createJournal(journal);
+      const newJournal = await JournalsService.insertJournals(journal);
 
       if (newJournal.status === 201 || newJournal.status === 200) {
         await Swal.fire({
