@@ -1,253 +1,142 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
-import ComicsService from "../service/comics.service";
+import ComicsService from "../service/comics.service.js";
 import Swal from "sweetalert2";
+import { useNavigate, useParams } from "react-router";
 
 const EditComic = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
 
-  const [comic, setComic] = useState({ /* initial state */ });
-  const [loading, setLoading] = useState(true);
+  const [comic, setComic] = useState({
+    title: "",
+    author: "",
+    category: "",
+    publishYear: "",
+    isbn: "",
+    series: "",
+    volumeNumber: "",
+    illustrator: "",
+    colorType: "",
+    targetAge: "",
+    description: "",
+    coverImage: "",
+  });
 
   useEffect(() => {
-    const fetchComic = async () => {
+    const updateComic = async (id) => {
       try {
-        const response = await ComicsService.getComicsById(id); // GET API
-        if (response.status === 200) {
-          const apiData = response.data;
-          setComic({
-            title: apiData.title || "",
-            author: apiData.author || "",
-            category: apiData.category || "",
-            publishYear: apiData.publish_year || "",
-            series: apiData.series || "",
-            volumeNumber: apiData.volume_number || "",
-            illustrator: apiData.illustrator || "",
-            colorType: apiData.color_type || "",
-            targetAge: apiData.target_age || "",
-            description: apiData.description || "",
-            coverImage: apiData.cover_image || "",
-            location: apiData.location || "",
-          });
-        } else {
-          Swal.fire({
-            title: "Comic Not Found",
-            icon: "error",
-            text: `No comic found with ID: ${id}`,
-          }).then(() => navigate("/"));
+        const resp = await ComicsService.getComicsById(id);
+        if (resp.status === 200) {
+          setComic(resp.data.data);
         }
       } catch (error) {
         Swal.fire({
-          title: "Error fetching comic",
+          title: "Get Comic Error",
           icon: "error",
-          text: error.message,
+          text: error?.response?.data?.message || error.message,
         });
-      } finally {
-        setLoading(false);
       }
     };
-
-    fetchComic();
-  }, [id, navigate]);
+    updateComic(id);
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setComic({ ...comic, [name]: value });
+    setComic((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e?.preventDefault();
+
     try {
-      const response = await ComicsService.editComicById(id, comic);
-      if (response.status === 200) {
-        setComic(response.data);
-        Swal.fire({
-          title: "Comic Updated",
+      const newComic = await ComicsService.editComicsById(id, comic);
+
+      if (newComic.status === 201 || newComic.status === 200) {
+        await Swal.fire({
+          title: "Update Comic",
+          text: "Update successfully!",
           icon: "success",
-          text: "Successfully updated comic.",
-        }).then(() => navigate("/"));
+        });
+        navigate("/comics");
       }
     } catch (error) {
-      Swal.fire({
-        title: "Error updating comic",
+      await Swal.fire({
+        title: "Update Comic Error",
+        text: error.message || "Request failed",
         icon: "error",
-        text: error.message,
       });
+      console.error("Edit comic error:", error);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <p className="text-rose-800 text-xl font-semibold">
-          Loading comic data...
-        </p>
-      </div>
-    );
-  }
-
-
   return (
-    <div className="flex justify-center py-12 bg-rose-50">
-      <div className="card w-full max-w-3xl shadow-xl border border-rose-300 rounded-2xl bg-rose-50">
-        <div className="card-body p-8">
-          <h1 className="text-4xl font-bold text-center mb-8 text-rose-800">
-            Edit Comic
+    <div className="flex flex-col justify-center min-h-screen bg-stone-100 py-10">
+      <div className="container mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-6 m-auto bg-stone-50 rounded-2xl shadow-xl ring-2 ring-stone-300 max-w-2xl"
+        >
+          <h1 className="text-2xl font-semibold text-center text-stone-800 mb-6">
+            แก้ไขการ์ตูน
           </h1>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Title</span>
+          <div className="space-y-4">
+            {[
+              { label: "Title", name: "title", type: "text" },
+              { label: "Author", name: "author", type: "text" },
+              { label: "Category", name: "category", type: "text" },
+              { label: "Publish Year", name: "publishYear", type: "number" },
+              { label: "ISBN", name: "isbn", type: "text", readOnly: true },
+              { label: "Series", name: "series", type: "text" },
+              { label: "Volume Number", name: "volumeNumber", type: "number" },
+              { label: "Illustrator", name: "illustrator", type: "text" },
+              { label: "Color Type", name: "colorType", type: "text" },
+              { label: "Target Age", name: "targetAge", type: "text" },
+              { label: "Description", name: "description", type: "text" },
+              { label: "Cover Image URL", name: "coverImage", type: "text" },
+            ].map(({ label, name, type, readOnly }) => (
+              <div key={name}>
+                <label className="label">
+                  <span className="text-base label-text text-stone-800">{label}</span>
+                </label>
                 <input
-                  type="text"
-                  name="title"
-                  value={comic.title}
+                  type={type}
+                  name={name}
+                  value={comic[name]}
                   onChange={handleChange}
-                  className="input input-bordered w-full"
+                  readOnly={readOnly}
+                  placeholder={`Enter ${label}`}
+                  className="w-full input input-bordered focus:border-stone-500 focus:ring focus:ring-stone-200"
                 />
-              </label>
+                {name === "coverImage" && comic.coverImage && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <img
+                      className="h-32 rounded-md border border-stone-300"
+                      src={comic.coverImage}
+                      alt="cover preview"
+                    />
+                  </div>
+                )}
+              </div>
+            ))}
 
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Author</span>
-                <input
-                  type="text"
-                  name="author"
-                  value={comic.author}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Category</span>
-                <input
-                  type="text"
-                  name="category"
-                  value={comic.category}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Publish Year</span>
-                <input
-                  type="number"
-                  name="publishYear"
-                  value={comic.publishYear}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Series</span>
-                <input
-                  type="text"
-                  name="series"
-                  value={comic.series}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Volume Number</span>
-                <input
-                  type="number"
-                  name="volumeNumber"
-                  value={comic.volumeNumber}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Illustrator</span>
-                <input
-                  type="text"
-                  name="illustrator"
-                  value={comic.illustrator}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Color Type</span>
-                <input
-                  type="text"
-                  name="colorType"
-                  value={comic.colorType}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Target Age</span>
-                <input
-                  type="text"
-                  name="targetAge"
-                  value={comic.targetAge}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full col-span-1 md:col-span-2">
-                <span className="label-text font-semibold text-rose-900">Description</span>
-                <textarea
-                  name="description"
-                  value={comic.description}
-                  onChange={handleChange}
-                  className="textarea textarea-bordered w-full"
-                  rows={4}
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Cover Image</span>
-                <input
-                  type="text"
-                  name="coverImage"
-                  value={comic.coverImage}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-
-              <label className="form-control w-full">
-                <span className="label-text font-semibold text-rose-900">Location</span>
-                <input
-                  type="text"
-                  name="location"
-                  value={comic.location}
-                  onChange={handleChange}
-                  className="input input-bordered w-full"
-                />
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-4 mt-8">
-              <button
-                type="button"
-                className="btn btn-rose btn-outline hover:bg-rose-100 transition"
-                onClick={() => navigate("/")}
-              >
-                Cancel
-              </button>
+            <div className="flex justify-center items-center my-6 space-x-4">
               <button
                 type="submit"
-                className="btn text-white bg-gradient-to-r from-rose-400 via-rose-500 to-rose-600 hover:from-rose-500 hover:via-rose-600 hover:to-rose-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
+                className="btn text-white bg-gradient-to-r from-stone-400 via-stone-500 to-stone-600 hover:from-stone-500 hover:via-stone-600 hover:to-stone-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 px-6"
               >
-                Save
+                ยืนยัน
+              </button>
+              <button
+                type="button"
+                className="btn border-stone-400 text-stone-700 hover:bg-stone-200 transition px-6"
+                onClick={() => navigate("/comics")}
+              >
+                ยกเลิก
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   );

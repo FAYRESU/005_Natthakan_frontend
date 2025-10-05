@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useState } from "react";
+import BooksService from "../service/books.service.js";
 import Swal from "sweetalert2";
-import BooksService from "../service/books.service";
+import { useNavigate } from "react-router";
 
-const EditBook = () => {
-  const { id } = useParams();
+const AddBook = () => {
   const navigate = useNavigate();
+
   const [book, setBook] = useState({
     title: "",
     author: "",
@@ -19,254 +19,266 @@ const EditBook = () => {
     genre: "",
     description: "",
     coverImage: "",
-    location: "",
+    location: "A1-B2-C3",
   });
-
-  const [loading, setLoading] = useState(true);
-
-  // Fetch data by id
-  useEffect(() => {
-    const fetchBook = async () => {
-      try {
-        const res = await BooksService.getBooksById(id);
-        setBook({
-          title: res.data.title || "",
-          author: res.data.author || "",
-          category: res.data.category || "",
-          publishYear: res.data.publishYear || "",
-          isbn: res.data.isbn || "",
-          publisher: res.data.publisher || "",
-          edition: res.data.edition || "",
-          pageCount: res.data.pageCount || "",
-          language: res.data.language || "",
-          genre: res.data.genre || "",
-          description: res.data.description || "",
-          coverImage: res.data.coverImage || "",
-          location: res.data.location || "",
-        });
-        setLoading(false);
-      } catch (err) {
-        Swal.fire("Error", err.message, "error");
-      }
-    };
-    fetchBook();
-  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setBook({ ...book, [name]: value });
+    setBook((prev) => ({ ...prev, [name]: value }));
   };
 
   const resetForm = () => {
-    // ไม่ reset เป็นค่าว่าง แต่ reset เป็นค่าเดิมจาก backend
-    setBook({ ...book });
+    setBook({
+      title: "",
+      author: "",
+      category: "",
+      publishYear: "",
+      isbn: "",
+      publisher: "",
+      edition: "",
+      pageCount: "",
+      language: "",
+      genre: "",
+      description: "",
+      coverImage: "",
+      location: "A1-B2-C3",
+    });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+
     try {
-      const res = await BooksService.editBooksById(id, book);
-      if (res.status === 200) {
-        Swal.fire({
-          title: "อัปเดตสำเร็จ",
-          text: "Book updated successfully!",
+      const newBook = await BooksService.insertBooks(book);
+
+      if (newBook.status === 201 || newBook.status === 200) {
+        await Swal.fire({
+          title: "Add new book",
+          text: "Add new book successfully!",
           icon: "success",
-        }).then(() => {
-          navigate("/");
         });
-      }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
+        resetForm();
+        navigate("/");
+      } 
+      
+    } catch (error) {
+      await Swal.fire({
+        title: "Add new book",
+        text:  error.message || "Request failed",
+        icon: "error",
+      });
+      console.error("Create book error:", error);
     }
   };
 
-  if (loading) return <p className="text-center py-12">Loading...</p>;
-
   return (
-    <div className="flex justify-center py-12 bg-amber-50">
-      <div className="card w-full max-w-3xl shadow-xl border border-amber-300 rounded-2xl bg-amber-50">
-        <div className="card-body p-8">
-          <h1 className="text-4xl font-bold text-center mb-8 text-amber-800">
-            แก้ไขหนังสือ
+    <div className="flex flex-col justify-center min-h-screen bg-amber-50 py-10">
+      <div className="container mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-6 m-auto bg-amber-50 rounded-2xl shadow-xl ring-2 ring-amber-300 max-w-2xl"
+        >
+          <h1 className="text-2xl font-semibold text-center text-amber-800 mb-6">
+            Add Book
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ชื่อหนังสือ</span>
+          <div className="space-y-4">
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Title</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter title"
+                className="w-full input input-bordered"
                 name="title"
                 value={book.title}
                 onChange={handleChange}
-                placeholder="ระบุชื่อหนังสือ"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
+                required
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ผู้แต่ง</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Author</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter author"
+                className="w-full input input-bordered"
                 name="author"
                 value={book.author}
                 onChange={handleChange}
-                placeholder="ระบุชื่อผู้แต่ง"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">หมวดหมู่</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Category</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter category"
+                className="w-full input input-bordered"
                 name="category"
                 value={book.category}
                 onChange={handleChange}
-                placeholder="นิยาย, วิชาการ, การ์ตูน"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ปีที่พิมพ์</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Publish Year</span>
+              </label>
               <input
                 type="number"
+                placeholder="Enter publish year"
+                className="w-full input input-bordered"
                 name="publishYear"
                 value={book.publishYear}
                 onChange={handleChange}
-                placeholder="ระบุปีที่พิมพ์"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
+                min="0"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ISBN</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">ISBN</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter ISBN"
+                className="w-full input input-bordered"
                 name="isbn"
                 value={book.isbn}
                 onChange={handleChange}
-                placeholder="ระบุหมายเลข ISBN"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">สำนักพิมพ์</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Publisher</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter publisher"
+                className="w-full input input-bordered"
                 name="publisher"
                 value={book.publisher}
                 onChange={handleChange}
-                placeholder="ระบุสำนักพิมพ์"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ครั้งที่พิมพ์</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Edition</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter edition"
+                className="w-full input input-bordered"
                 name="edition"
                 value={book.edition}
                 onChange={handleChange}
-                placeholder="ครั้งที่ 1, ฉบับปรับปรุง"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">จำนวนหน้า</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Page Count</span>
+              </label>
               <input
                 type="number"
+                placeholder="Enter page count"
+                className="w-full input input-bordered"
                 name="pageCount"
                 value={book.pageCount}
                 onChange={handleChange}
-                placeholder="จำนวนหน้า"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
+                min="0"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ภาษา</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Language</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter language"
+                className="w-full input input-bordered"
                 name="language"
                 value={book.language}
                 onChange={handleChange}
-                placeholder="ไทย, อังกฤษ, จีน"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
 
-            <label className="form-control w-full">
-              <span className="label-text font-semibold text-amber-900">ประเภทหนังสือ</span>
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Genre</span>
+              </label>
               <input
                 type="text"
+                placeholder="Enter genre"
+                className="w-full input input-bordered"
                 name="genre"
                 value={book.genre}
                 onChange={handleChange}
-                placeholder="นิยาย, บันเทิง, วิชาการ"
-                className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
               />
-            </label>
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Description</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter description"
+                className="w-full input input-bordered"
+                name="description"
+                value={book.description}
+                onChange={handleChange}
+              />
+            </div>
+
+            <div>
+              <label className="label">
+                <span className="text-base label-text text-black">Cover Image URL</span>
+              </label>
+              <input
+                type="text"
+                className="w-full input input-bordered"
+                value={book.coverImage}
+                onChange={handleChange}
+                placeholder="https://example.com/image.jpg"
+                name="coverImage"
+              />
+              {book.coverImage && (
+                <div className="flex items-center gap-2 mt-2">
+                  <img className="h-32 rounded-md shadow" src={book.coverImage} alt="cover preview" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-center items-center my-6 space-x-4">
+              <button
+                type="submit"
+                className="btn text-white bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 px-6"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                className="btn border-amber-400 text-amber-700 hover:bg-amber-100 transition px-6"
+                onClick={resetForm}
+              >
+                Reset
+              </button>
+            </div>
           </div>
-
-          <label className="form-control w-full mt-6">
-            <span className="label-text font-semibold text-amber-900">คำอธิบาย</span>
-            <textarea
-              name="description"
-              value={book.description}
-              onChange={handleChange}
-              placeholder="เขียนคำอธิบายสั้น ๆ"
-              className="textarea textarea-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
-              rows={4}
-            />
-          </label>
-
-          <label className="form-control w-full mt-4">
-            <span className="label-text font-semibold text-amber-900">รูปปก (URL)</span>
-            <input
-              type="text"
-              name="coverImage"
-              value={book.coverImage}
-              onChange={handleChange}
-              placeholder="วาง URL รูปปก"
-              className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
-            />
-          </label>
-
-          <label className="form-control w-full mt-4">
-            <span className="label-text font-semibold text-amber-900">ตำแหน่งเก็บ</span>
-            <input
-              type="text"
-              name="location"
-              value={book.location}
-              onChange={handleChange}
-              placeholder="A2, ห้องสมุด 1"
-              className="input input-bordered w-full focus:border-amber-500 focus:ring focus:ring-amber-200"
-            />
-          </label>
-
-          <div className="flex justify-end gap-4 mt-8">
-            <button
-              type="button"
-              className="btn btn-amber btn-outline hover:bg-amber-100 transition"
-              onClick={() => navigate("/")}
-            >
-              ยกเลิก
-            </button>
-            <button
-              type="button"
-              className="btn text-white bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              onClick={handleSubmit}
-            >
-              บันทึก
-            </button>
-          </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default EditBook;
+export default AddBook;

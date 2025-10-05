@@ -1,10 +1,9 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router";
+import React, { useState } from "react";
+import JournalsService from "../service/journals.service.js";
 import Swal from "sweetalert2";
-import JournalsService from "../service/journals.service";
+import { useNavigate } from "react-router";
 
-const EditJournal = () => {
-  const { id } = useParams();
+const AddJournal = () => {
   const navigate = useNavigate();
 
   const [journal, setJournal] = useState({
@@ -15,87 +14,107 @@ const EditJournal = () => {
     issn: "",
     volume: "",
     issue: "",
-    publicationFrequency: "",
-    description: "",
-    coverImage: "",
-    location: "",
+    publicationFrequency: "MONTHLY",
+    publisher: "",
+    description: ""
   });
-
-  useEffect(() => {
-    const fetchJournal = async () => {
-      try {
-        const res = await JournalsService.getJournalsById(id);
-        setJournal(res.data);
-      } catch (err) {
-        Swal.fire("Error", err.message, "error");
-      }
-    };
-    fetchJournal();
-  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setJournal({ ...journal, [name]: value });
+    setJournal((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const resetForm = () => {
+    setJournal({
+      title: "",
+      author: "",
+      category: "",
+      publishYear: "",
+      issn: "",
+      volume: "",
+      issue: "",
+      publicationFrequency: "MONTHLY",
+      publisher: "",
+      description: ""
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
+
     try {
-      const res = await JournalsService.editJournalsById(id, journal);
-      if (res.status === 200) {
-        Swal.fire("Success", "Journal updated successfully!", "success").then(() => {
-          navigate("/");
+      const newJournal = await JournalsService.createJournal(journal);
+
+      if (newJournal.status === 201 || newJournal.status === 200) {
+        await Swal.fire({
+          title: "Add new journal",
+          text: "Add new journal successfully!",
+          icon: "success",
         });
+        resetForm();
+        navigate("/journals");
       }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
+
+    } catch (error) {
+      await Swal.fire({
+        title: "Add new journal",
+        text: error.message || "Request failed",
+        icon: "error",
+      });
+      console.error("Create journal error:", error);
     }
   };
 
   return (
-    <div className="flex justify-center py-12 bg-green-50">
-      <div className="card w-full max-w-3xl shadow-xl border border-green-300 rounded-2xl bg-green-50">
-        <div className="card-body p-8">
-          <h1 className="text-4xl font-bold text-center mb-8 text-green-800">
-            Edit Journal
+    <div className="flex flex-col justify-center min-h-screen bg-amber-50 py-10">
+      <div className="container mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-6 m-auto bg-amber-50 rounded-2xl shadow-xl ring-2 ring-amber-300 max-w-2xl"
+        >
+          <h1 className="text-2xl font-semibold text-center text-amber-800 mb-6">
+            Add Journal
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(journal).map(([key, value]) => (
-              <label key={key} className="form-control w-full">
-                <span className="label-text font-semibold text-green-900">
-                  {key.charAt(0).toUpperCase() + key.slice(1)}
-                </span>
+          <div className="space-y-4">
+            {Object.keys(journal).map((key) => (
+              <div key={key}>
+                <label className="label">
+                  <span className="text-base label-text text-black">
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </span>
+                </label>
                 <input
-                  type={key === "volume" || key === "issue" || key === "publishYear" ? "number" : "text"}
+                  type={key === "publishYear" || key === "volume" || key === "issue" ? "number" : "text"}
+                  placeholder={`Enter ${key}`}
+                  className="w-full input input-bordered"
                   name={key}
-                  value={value || ""}
+                  value={journal[key]}
                   onChange={handleChange}
-                  className="input input-bordered w-full focus:border-green-500 focus:ring focus:ring-green-200"
                 />
-              </label>
+              </div>
             ))}
-          </div>
 
-          <div className="flex justify-end gap-4 mt-8">
-            <button
-              type="button"
-              className="btn btn-green btn-outline hover:bg-green-100 transition"
-              onClick={() => navigate("/")}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:from-green-500 hover:via-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              onClick={handleSubmit}
-            >
-              Save
-            </button>
+            <div className="flex justify-center items-center my-6 space-x-4">
+              <button
+                type="submit"
+                className="btn text-white bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 px-6"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                className="btn border-amber-400 text-amber-700 hover:bg-amber-100 transition px-6"
+                onClick={resetForm}
+              >
+                Reset
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
 };
 
-export default EditJournal;
+export default AddJournal;

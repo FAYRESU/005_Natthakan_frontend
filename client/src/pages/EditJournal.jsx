@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router";
+import React, { useState, useEffect } from "react";
+import JournalsService from "../service/journals.service.js";
 import Swal from "sweetalert2";
-import JournalsService from "../service/journals.service";
+import { useNavigate, useParams } from "react-router";
 
 const EditJournal = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams();
+
   const [journal, setJournal] = useState({
     title: "",
     author: "",
@@ -14,83 +15,123 @@ const EditJournal = () => {
     issn: "",
     volume: "",
     issue: "",
+    publicationFrequency: "MONTHLY",
     publisher: "",
-    publicationFrequency: "",
     description: "",
     coverImage: "",
-    location: "",
   });
 
   useEffect(() => {
-    const fetchJournal = async () => {
+    const fetchJournal = async (id) => {
       try {
-        const res = await JournalsService.getJournalsById(id);
-        setJournal(res.data);
-      } catch (err) {
-        Swal.fire("Error", err.message, "error");
+        const resp = await JournalsService.getJournalsById(id);
+        if (resp.status === 200) {
+          setJournal(resp.data.data);
+        }
+      } catch (error) {
+        Swal.fire({
+          title: "Get Journal Error",
+          icon: "error",
+          text: error?.response?.data?.message || error.message,
+        });
       }
     };
-    fetchJournal();
+    fetchJournal(id);
   }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setJournal({ ...journal, [name]: value });
+    setJournal((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e?.preventDefault();
     try {
-      const res = await JournalsService.editJournalsById(id, journal);
-      if (res.status === 200) {
-        Swal.fire("Success", "Journal updated successfully!", "success").then(() => {
-          navigate("/");
+      const updatedJournal = await JournalsService.editJournalsById(id, journal);
+      if (updatedJournal.status === 201 || updatedJournal.status === 200) {
+        await Swal.fire({
+          title: "Update Journal",
+          text: "Update journal successfully!",
+          icon: "success",
         });
+        navigate("/journals");
       }
-    } catch (err) {
-      Swal.fire("Error", err.message, "error");
+    } catch (error) {
+      await Swal.fire({
+        title: "Update Journal Error",
+        text: error.message || "Request failed",
+        icon: "error",
+      });
+      console.error("Edit journal error:", error);
     }
   };
 
   return (
-    <div className="flex justify-center py-12 bg-red-50">
-      <div className="card w-full max-w-3xl shadow-xl border border-amber-300 bg-amber-50 rounded-2xl">
-        <div className="card-body p-8">
-          <h1 className="text-4xl font-bold text-center mb-8 text-red-800">
-            Edit Journal
+    <div className="flex flex-col justify-center min-h-screen bg-amber-50 py-10">
+      <div className="container mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full p-6 m-auto bg-amber-50 rounded-2xl shadow-xl ring-2 ring-amber-300 max-w-2xl"
+        >
+          <h1 className="text-2xl font-semibold text-center text-amber-800 mb-6">
+            แก้ไขวารสาร
           </h1>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Object.entries(journal).map(([key, value]) => (
-              <label key={key} className="form-control w-full">
-                <span className="label-text font-semibold text-red-900">{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+          <div className="space-y-4">
+            {[
+              { label: "Title", name: "title", type: "text" },
+              { label: "Author", name: "author", type: "text" },
+              { label: "Category", name: "category", type: "text" },
+              { label: "Publish Year", name: "publishYear", type: "number" },
+              { label: "ISSN", name: "issn", type: "text", readOnly: true },
+              { label: "Volume", name: "volume", type: "text" },
+              { label: "Issue", name: "issue", type: "text", readOnly: true },
+              { label: "Publisher", name: "publisher", type: "text" },
+              { label: "Description", name: "description", type: "text" },
+              { label: "Cover Image URL", name: "coverImage", type: "text" },
+            ].map(({ label, name, type, readOnly }) => (
+              <div key={name}>
+                <label className="label">
+                  <span className="text-base label-text text-amber-900">{label}</span>
+                </label>
                 <input
-                  type={["publishYear", "volume", "issue"].includes(key) ? "number" : "text"}
-                  name={key}
-                  value={value || ""}
+                  type={type}
+                  name={name}
+                  value={journal[name]}
                   onChange={handleChange}
-                  className="input input-bordered w-full focus:border-rose-500 focus:ring focus:ring-rose-200"
+                  readOnly={readOnly}
+                  placeholder={`Enter ${label}`}
+                  className="w-full input input-bordered focus:border-amber-500 focus:ring focus:ring-amber-200"
                 />
-              </label>
+                {name === "coverImage" && journal.coverImage && (
+                  <div className="flex items-center gap-2 mt-2">
+                    <img
+                      className="h-32 rounded-md border border-amber-300"
+                      src={journal.coverImage}
+                      alt="cover preview"
+                    />
+                  </div>
+                )}
+              </div>
             ))}
-          </div>
 
-          <div className="flex justify-end gap-4 mt-8">
-            <button
-              type="button"
-              className="btn btn-amber btn-outline hover:bg-amber-100 transition"
-              onClick={() => navigate("/")}
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              className="btn text-white bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 hover:from-rose-600 hover:via-amber-600 hover:to-red-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105"
-              onClick={handleSubmit}
-            >
-              Save
-            </button>
+            <div className="flex justify-center items-center my-6 space-x-4">
+              <button
+                type="submit"
+                className="btn text-white bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 hover:from-amber-500 hover:via-amber-600 hover:to-amber-700 shadow-lg hover:shadow-xl transition-all transform hover:scale-105 px-6"
+              >
+                ยืนยัน
+              </button>
+              <button
+                type="button"
+                className="btn border-amber-400 text-amber-700 hover:bg-amber-100 transition px-6"
+                onClick={() => navigate("/journals")}
+              >
+                ยกเลิก
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

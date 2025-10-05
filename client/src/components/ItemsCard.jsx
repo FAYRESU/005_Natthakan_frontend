@@ -6,7 +6,6 @@ const ItemsCard = ({ items, type, children, onDelete }) => {
   if (!items) return null;
 
   const handleEdit = () => {
-    // แปลง type ให้ตรงกับ API route
     let apiType = "";
     if (type === "book") apiType = "books";
     else if (type === "comic") apiType = "comics";
@@ -16,12 +15,12 @@ const ItemsCard = ({ items, type, children, onDelete }) => {
   };
 
   return (
-    <div className="card bg-base-100 shadow-md border border-base-300">
+    <div className="card bg-amber-50 shadow-md border border-amber-200">
       <div className="card-body">
-        <h2 className="card-title text-primary">{items.title || "-"}</h2>
+        <h2 className="card-title text-amber-900">{items.title || "-"}</h2>
         {items.author && <p>✍️ {items.author}</p>}
 
-        <div className="mt-3 space-y-1 text-sm">
+        <div className="mt-3 space-y-1 text-sm text-gray-700">
           {items.category && <p><strong>หมวดหมู่:</strong> {items.category}</p>}
           {items.publishYear && <p><strong>ปีที่พิมพ์:</strong> {items.publishYear}</p>}
           {items.isbn && <p><strong>ISBN:</strong> {items.isbn}</p>}
@@ -32,13 +31,13 @@ const ItemsCard = ({ items, type, children, onDelete }) => {
         <div className="divider"></div>
         <div className="flex justify-end gap-2">
           <button
-            className="btn btn-outline btn-sm"
+            className="btn btn-error btn-sm"
             onClick={() => onDelete && onDelete(items.itemId, type)}
           >
             ลบ
           </button>
           <button
-            className="btn btn-primary btn-sm"
+            className="btn bg-amber-700 hover:bg-amber-800 text-white btn-sm"
             onClick={handleEdit}
           >
             แก้ไข

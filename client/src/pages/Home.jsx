@@ -22,7 +22,6 @@ const Home = () => {
         ComicsService.getAllComics(),
       ]);
 
-      // ตรวจสอบ response.data ว่าเป็น array หรือ object
       setBooks(Array.isArray(b.data) ? b.data : b.data.data || []);
       setJournals(Array.isArray(j.data) ? j.data : j.data.data || []);
       setComics(Array.isArray(c.data) ? c.data : c.data.data || []);
@@ -50,24 +49,48 @@ const Home = () => {
     }
   };
 
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-64">
+        <span className="loading loading-spinner text-amber-700"></span>
+      </div>
+    );
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
-      <h1 className="text-3xl font-bold text-center">Book Store</h1>
+    <div className="min-h-screen bg-amber-50">
+      <div className="container mx-auto p-6 space-y-6">
+        <h1 className="text-4xl font-bold text-center text-amber-900 drop-shadow-sm">
+          Book Store
+        </h1>
 
-      <div className="grid md:grid-cols-3 gap-4">
-        {Array.isArray(books) && books.map(b => (
-          <BookCard key={b.itemId} book={b} onDelete={() => handleDelete("Book", b.itemId)} />
-        ))}
+        <div className="grid md:grid-cols-3 gap-6">
+          {Array.isArray(books) &&
+            books.map((b) => (
+              <BookCard
+                key={b.itemId}
+                book={b}
+                onDelete={() => handleDelete("Book", b.itemId)}
+              />
+            ))}
 
-        {Array.isArray(journals) && journals.map(j => (
-          <JournalCard key={j.itemId} journal={j} onDelete={() => handleDelete("Journal", j.itemId)} />
-        ))}
+          {Array.isArray(journals) &&
+            journals.map((j) => (
+              <JournalCard
+                key={j.itemId}
+                journal={j}
+                onDelete={() => handleDelete("Journal", j.itemId)}
+              />
+            ))}
 
-        {Array.isArray(comics) && comics.map(c => (
-          <ComicCard key={c.itemId} comic={c} onDelete={() => handleDelete("Comic", c.itemId)} />
-        ))}
+          {Array.isArray(comics) &&
+            comics.map((c) => (
+              <ComicCard
+                key={c.itemId}
+                comic={c}
+                onDelete={() => handleDelete("Comic", c.itemId)}
+              />
+            ))}
+        </div>
       </div>
     </div>
   );

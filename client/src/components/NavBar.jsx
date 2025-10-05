@@ -9,7 +9,7 @@ const NavBar = () => {
   ];
 
   return (
-    <nav className="w-full bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 shadow-lg rounded-b-xl px-4 py-3 sticky top-0 z-50">
+    <nav className="w-full bg-gradient-to-r from-amber-900 via-amber-700 to-amber-200 shadow-lg rounded-b-xl px-4 py-3 sticky top-0 z-50">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo */}
         <a
@@ -46,14 +46,14 @@ const NavBar = () => {
                 {item.isButton ? (
                   <a
                     href={item.url}
-                    className="text-white bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 hover:from-rose-600 hover:via-amber-600 hover:to-red-700 rounded-md text-center py-2 px-4 transition-all shadow-md hover:shadow-lg"
+                    className="text-white bg-gradient-to-r from-amber-900 via-amber-700 to-amber-300 hover:from-amber-800 hover:via-amber-600 hover:to-amber-200 rounded-md text-center py-2 px-4 transition-all shadow-md hover:shadow-lg"
                   >
                     {item.name}
                   </a>
                 ) : (
                   <a
                     href={item.url}
-                    className="hover:bg-rose-100 hover:text-red-900 rounded-md transition-colors"
+                    className="hover:bg-amber-100 hover:text-amber-900 rounded-md transition-colors"
                   >
                     {item.name}
                   </a>
@@ -70,7 +70,7 @@ const NavBar = () => {
               <a
                 key={item.name}
                 href={item.url}
-                className="text-white bg-gradient-to-r from-rose-500 via-amber-500 to-red-600 hover:from-rose-600 hover:via-amber-600 hover:to-red-700 rounded-md py-2 px-4 font-medium shadow-md hover:shadow-lg transition-all"
+                className="text-white bg-gradient-to-r from-amber-900 via-amber-700 to-amber-300 hover:from-amber-800 hover:via-amber-600 hover:to-amber-200 rounded-md py-2 px-4 font-medium shadow-md hover:shadow-lg transition-all"
               >
                 {item.name}
               </a>
