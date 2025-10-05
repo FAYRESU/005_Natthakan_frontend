@@ -52,7 +52,7 @@ const AddJournal = () => {
           icon: "success",
         });
         resetForm();
-        navigate("/journals");
+        navigate("/");
       }
 
     } catch (error) {
