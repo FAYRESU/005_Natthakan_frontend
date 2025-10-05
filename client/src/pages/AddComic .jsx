@@ -54,7 +54,7 @@ const AddComic = () => {
           icon: "success",
         });
         resetForm();
-        navigate("/comics");
+        navigate("/");
       }
 
     } catch (error) {
