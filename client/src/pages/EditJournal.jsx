@@ -47,14 +47,14 @@ const EditJournal = () => {
   const handleSubmit = async (e) => {
     e?.preventDefault();
     try {
-      const updatedJournal = await JournalsService.editJournalsById(id, journal);
+      const updatedJournal = await JournalsService.editlJournalsById(id, journal);
       if (updatedJournal.status === 201 || updatedJournal.status === 200) {
         await Swal.fire({
           title: "Update Journal",
           text: "Update journal successfully!",
           icon: "success",
         });
-        navigate("/journals");
+        navigate("/");
       }
     } catch (error) {
       await Swal.fire({

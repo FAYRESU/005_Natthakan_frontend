@@ -49,7 +49,7 @@ const EditComic = () => {
     e?.preventDefault();
 
     try {
-      const newComic = await ComicsService.editComicsById(id, comic);
+      const newComic = await ComicsService.editlComicsById(id, comic);
 
       if (newComic.status === 201 || newComic.status === 200) {
         await Swal.fire({
@@ -57,7 +57,7 @@ const EditComic = () => {
           text: "Update successfully!",
           icon: "success",
         });
-        navigate("/comics");
+        navigate("/");
       }
     } catch (error) {
       await Swal.fire({
